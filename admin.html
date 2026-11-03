@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Painel | Sonho Doce</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>:root{--gold:#b98a1e;--gold2:#d9ab3f;--cream:#fbf3e4;--ink:#241812;--card:#fffaf0}
+*{box-sizing:border-box;margin:0}body{font:400 15px/1.5 Poppins,sans-serif;background:var(--cream);color:var(--ink)}[hidden]{display:none!important}
+h1,h3{font-family:'Playfair Display',serif}h3{margin:26px 0 10px}code{background:#f0e0b8;padding:1px 6px;border-radius:6px}
+.center{min-height:100vh;display:grid;place-items:center;padding:20px}.card{background:var(--card);padding:32px;border-radius:22px;width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px;box-shadow:0 20px 40px #0002}
+.brand{display:flex;align-items:center;gap:10px}.brand b{width:42px;height:42px;border:2px solid var(--gold);border-radius:50%;display:grid;place-items:center;color:var(--gold);font:800 1.2rem 'Playfair Display'}.brand h1{font-size:1.2rem}
+label{display:flex;flex-direction:column;font-size:.8rem;font-weight:500;gap:4px}
+input,select{font:inherit;padding:10px 12px;border:1.5px solid #dcc78f;border-radius:10px;background:#fff;width:100%}input:focus,select:focus{outline:2px solid var(--gold2)}
+button{font:600 .85rem Poppins;cursor:pointer;border:0;border-radius:30px;padding:9px 18px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#fff}
+.btn{padding:13px}.ghost{background:none;border:1.5px solid var(--gold);color:var(--gold)}.danger{background:#a93226}
+.err{color:#a93226;font-size:.85rem;min-height:1em}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 5%;background:var(--card);border-bottom:1px solid #e6d3a5}
+#tabs{display:flex;gap:8px;overflow-x:auto;padding:12px 5%}#tabs button{background:none;color:var(--gold);border:1.5px solid var(--gold);white-space:nowrap}#tabs .on{background:var(--gold);color:#fff}
+main{padding:0 5% 60px;max-width:1000px;margin:auto}.tab{display:none}.tab.on{display:block}
+.item{background:var(--card);border:1px solid #e6d3a5;border-radius:16px;padding:16px;margin-bottom:12px}
+.row,.cfg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end}.chk{flex-direction:row;align-items:center;gap:8px}.chk input{width:auto}.btns{display:flex;gap:8px}
+.ord{display:grid;gap:4px}.ord .top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}.ord a{color:var(--gold);font-weight:600}
+.tag{padding:2px 10px;border-radius:20px;background:#f0e0b8;font-size:.75rem}.hint,.empty{opacity:.7;margin:8px 0 14px}.bar{margin:6px 0 14px;max-width:240px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,40px);background:var(--ink);color:#fff;padding:12px 22px;border-radius:30px;opacity:0;transition:.3s;z-index:9}#toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head><body>
+<section id="login" class="center">
+  <form id="loginForm" class="card">
+    <div class="brand"><b>SD</b><h1>Painel Sonho Doce</h1></div>
+    <label>E-mail<input id="email" type="email" autocomplete="username" required></label>
+    <label>Senha<input id="senha" type="password" autocomplete="current-password" required></label>
+    <p id="loginErr" class="err"></p>
+    <button class="btn" type="submit">Entrar</button>
+  </form>
+</section>
+<section id="panel" hidden>
+  <header><div class="brand"><b>SD</b><h1>Painel Sonho Doce</h1></div><button class="ghost" id="logout">Sair</button></header>
+  <nav id="tabs"><button data-tab="pedidos" class="on">Encomendas</button><button data-tab="bolos">Bolos</button><button data-tab="recheios">Recheios</button><button data-tab="galeria">Galeria</button><button data-tab="config">Contatos</button></nav>
+  <main>
+    <section class="tab on" id="t-pedidos"><div class="bar"><select id="fStatus"><option value="">Todos os status</option><option>novo</option><option>confirmado</option><option>entregue</option><option>cancelado</option></select></div><div id="orders"></div></section>
+    <section class="tab" id="t-bolos"><div id="list-bolos"></div><h3>Adicionar bolo</h3><div id="add-bolos"></div></section>
+    <section class="tab" id="t-recheios"><div id="list-recheios"></div><h3>Adicionar recheio</h3><div id="add-recheios"></div></section>
+    <section class="tab" id="t-galeria"><p class="hint">As fotos ficam na pasta <code>assets/img</code> do repositório. Aqui você controla legenda, ordem e visibilidade.</p><div id="list-galeria"></div><h3>Adicionar foto</h3><div id="add-galeria"></div></section>
+    <section class="tab" id="t-config">
+      <div class="item cfg"><label>WhatsApp 1 (com 55 + DDD)<input id="w1" inputmode="numeric" placeholder="5568999659565"></label><label>WhatsApp 2<input id="w2" inputmode="numeric" placeholder="5568992273315"></label><label>Instagram (sem @)<input id="ig" placeholder="sonhodoce.confeitaria"></label><div class="btns"><button id="saveCfg">Salvar contatos</button></div></div>
+      <h3>Primeira configuração</h3><p class="hint">Carrega no banco a tabela de bolos, recheios, galeria e contatos atuais do site. Substitui o que já existir nesses itens.</p><button class="danger" id="seed">Carregar dados iniciais</button>
+    </section>
+  </main>
+</section>
+<div id="toast"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>// Cole aqui a configuração do app Web (Firebase Console > Configurações do projeto > Seus apps > Web).
+// Estes valores são públicos por natureza: a segurança vem das REGRAS do banco (database.rules.json).
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAnZoepcKwdkyePnYWFiZE4N3T4SQcUcvU",
+  authDomain: "sonho-doce-8fb2d.firebaseapp.com",
+  databaseURL: "https://sonho-doce-8fb2d-default-rtdb.firebaseio.com",
+  projectId: "sonho-doce-8fb2d",
+  storageBucket: "sonho-doce-8fb2d.firebasestorage.app",
+  messagingSenderId: "27305972929",
+  appId: "1:27305972929:web:6afdc9ae03a34e2f3b7040"
+};
+const FIREBASE_ATIVO = !FIREBASE_CONFIG.apiKey.startsWith("COLE");
+// Dados iniciais reais da confeitaria: usados como reserva (modo demonstração) e para "Carregar dados iniciais" no /admin.html
+const SD = {
+  whatsapp: ['5568999659565', '5568992273315'],
+  instagram: 'sonhodoce.confeitaria', // atenção: no banner aparece "sonhodoce_confeitaria" – confirmar o correto
+  bolos: [
+    {peso:'1 kg',serve:10,valor:90},{peso:'1,5 kg',serve:15,valor:135},{peso:'2 kg',serve:20,valor:180},
+    {peso:'2,5 kg',serve:25,valor:225},{peso:'3 kg',serve:30,valor:270},{peso:'4 kg',serve:40,valor:360},
+    {peso:'5 kg',serve:50,valor:450},{peso:'6 kg',serve:60,valor:540},{peso:'7 kg',serve:70,valor:630},
+    {peso:'8 kg',serve:80,valor:720},{peso:'10 kg',serve:100,valor:900}
+  ],
+  tradicionais: ['Ninho e Chocolate','Doce de Leite','Beijinho (Côco)'],
+  especiais: ['Maracujá','Cupuaçu','Côco Queimado','Ninho e Abacaxi','Ninho e Oreo','Ninho com Morango','Ninho e Nutella'],
+  galeria: [ // legendas apenas descritivas; sem nomes/preços inventados
+    {img:'decorado',t:'Bolo decorado azul e dourado'},{img:'fatia',t:'Fatia para viagem'},
+    {img:'pudins',t:'Bolo de travessa com pudins'},{img:'travessas',t:'Bolos de travessa com frutas'},
+    {img:'retangulares',t:'Bolos retangulares'},{img:'docinhos',t:'Docinhos'}
+  ]
+};
+// Painel administrativo – Firebase Auth + Realtime Database. Segurança real: database.rules.json.
+const $ = s => document.querySelector(s), $$ = s => document.querySelectorAll(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const brl = v => Number(v || 0).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+const toast = m => { const t = $('#toast'); t.textContent = m; t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 2800); };
+const fail = e => { console.error(e); toast(/permission/i.test(e.message) ? 'Sem permissão para esta ação.' : 'Erro: ' + e.message); };
+const show = id => { $('#login').hidden = id !== 'login'; $('#panel').hidden = id !== 'panel'; };
+
+if (!FIREBASE_ATIVO) { $('#loginErr').textContent = 'Configure js/firebase-config.js antes de usar o painel.'; $('#loginForm button').disabled = true; throw new Error('Firebase não configurado'); }
+firebase.initializeApp(FIREBASE_CONFIG);
+const auth = firebase.auth(), db = firebase.database();
+
+$('#loginForm').onsubmit = async e => {
+  e.preventDefault(); $('#loginErr').textContent = '';
+  try { await auth.signInWithEmailAndPassword($('#email').value.trim(), $('#senha').value); }
+  catch { $('#loginErr').textContent = 'E-mail ou senha inválidos.'; }
+};
+$('#logout').onclick = () => auth.signOut();
+
+let started = false;
+auth.onAuthStateChanged(async u => {
+  if (!u) { show('login'); return; }
+  let ok = false;
+  try { ok = (await db.ref('admins/' + u.uid).once('value')).val() === true; } catch {}
+  if (!ok) { $('#loginErr').textContent = 'Esta conta não tem permissão de administrador.'; await auth.signOut(); return; }
+  show('panel'); if (!started) { started = true; start(); }
+});
+
+// ---------- Abas ----------
+$('#tabs').onclick = e => {
+  const b = e.target.closest('[data-tab]'); if (!b) return;
+  $$('#tabs button').forEach(x => x.classList.toggle('on', x === b));
+  $$('.tab').forEach(x => x.classList.toggle('on', x.id === 't-' + b.dataset.tab));
+};
+
+// ---------- Encomendas ----------
+const STATUS = ['novo', 'confirmado', 'entregue', 'cancelado'];
+let pedidos = [];
+function drawOrders() {
+  const f = $('#fStatus').value, l = f ? pedidos.filter(o => o.status === f) : pedidos;
+  $('#orders').innerHTML = l.map(o => {
+    const d = String(o.telefone || '').replace(/\D/g, ''), [a, m, dd] = String(o.data || '').split('-');
+    return `<article class="item ord" data-id="${esc(o.id)}"><div class="top"><strong>${esc(o.protocolo)}</strong><span class="tag">${o.criadoEm ? new Date(o.criadoEm).toLocaleString('pt-BR') : ''}</span></div>
+    <div><b>${esc(o.nome)}</b> · <a target="_blank" rel="noopener" href="https://wa.me/${d.length <= 11 ? '55' : ''}${d}">${esc(o.telefone)}</a></div>
+    <div>Bolo ${esc(o.bolo)} · Recheio: ${esc(o.recheio)} · Estimado: ${brl(o.valorEstimado)}</div>
+    <div>Data desejada: <b>${dd}/${m}/${a}</b></div>${o.obs ? `<div>Obs: ${esc(o.obs)}</div>` : ''}
+    <div class="btns"><select data-status>${STATUS.map(s => `<option ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}</select><button class="danger" data-delorder>Excluir</button></div></article>`;
+  }).join('') || '<p class="empty">Nenhuma encomenda.</p>';
+}
+$('#fStatus').onchange = drawOrders;
+$('#orders').addEventListener('change', e => {
+  if (!e.target.matches('[data-status]')) return;
+  db.ref('encomendas/' + e.target.closest('[data-id]').dataset.id + '/status').set(e.target.value).then(() => toast('Status atualizado.')).catch(fail);
+});
+$('#orders').addEventListener('click', e => {
+  if (!e.target.matches('[data-delorder]') || !confirm('Excluir esta encomenda?')) return;
+  db.ref('encomendas/' + e.target.closest('[data-id]').dataset.id).remove().catch(fail);
+});
+
+// ---------- Bolos, recheios, galeria ----------
+const SCHEMA = {
+  bolos: [['peso','text','Peso (ex: 2 kg)'], ['serve','number','Serve (pessoas)'], ['valor','number','Valor (R$)'], ['ordem','number','Ordem']],
+  recheios: [['nome','text','Nome'], ['tipo','sel','Tipo'], ['ordem','number','Ordem']],
+  galeria: [['img','text','Arquivo em assets/img (sem .jpg)'], ['t','text','Legenda'], ['ordem','number','Ordem']]
+};
+const field = ([k, t, l], v) => t === 'sel'
+  ? `<label>${l}<select data-k="${k}">${['tradicional','especial'].map(o => `<option ${o === v ? 'selected' : ''}>${o}</option>`).join('')}</select></label>`
+  : `<label>${l}<input data-k="${k}" type="${t}" ${t === 'number' ? 'step="any" min="0"' : ''} value="${esc(v)}"></label>`;
+const vis = v => `<label class="chk"><input type="checkbox" data-k="ativo" ${v !== false ? 'checked' : ''}> Visível</label>`;
+
+function startCol(n) {
+  $('#add-' + n).innerHTML = `<div class="item row" data-col="${n}">${SCHEMA[n].map(f => field(f, '')).join('')}${vis(true)}<div class="btns"><button data-act="add">Adicionar</button></div></div>`;
+  db.ref(n).on('value', s => {
+    const rows = []; s.forEach(c => { rows.push({id: c.key, ...c.val()}); });
+    rows.sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
+    $('#list-' + n).innerHTML = rows.map(r => `<div class="item row" data-col="${n}" data-id="${esc(r.id)}">${SCHEMA[n].map(f => field(f, r[f[0]])).join('')}${vis(r.ativo)}<div class="btns"><button data-act="save">Salvar</button><button class="danger" data-act="del">Excluir</button></div></div>`).join('')
+      || '<p class="empty">Vazio. Use “Carregar dados iniciais” na aba Contatos ou adicione abaixo.</p>';
+  }, fail);
+}
+function readRow(el, n) {
+  const o = {};
+  for (const [k, t] of SCHEMA[n]) {
+    const i = el.querySelector(`[data-k="${k}"]`), v = i.value.trim();
+    if (t === 'number') { if (v === '' || !isFinite(+v) || +v < 0) { toast('Preencha “' + k + '” com um número válido.'); return null; } o[k] = +v; }
+    else { if (!v) { toast('Preencha todos os campos.'); return null; } o[k] = v; }
+  }
+  o.ativo = el.querySelector('[data-k="ativo"]').checked;
+  return o;
+}
+document.addEventListener('click', e => {
+  const act = e.target.dataset.act, el = e.target.closest('[data-col]'); if (!act || !el) return;
+  const n = el.dataset.col, id = el.dataset.id;
+  if (act === 'del') { if (confirm('Excluir este item?')) db.ref(n + '/' + id).remove().then(() => toast('Excluído.')).catch(fail); return; }
+  const o = readRow(el, n); if (!o) return;
+  const p = act === 'add' ? db.ref(n).push(o) : db.ref(n + '/' + id).set(o);
+  p.then(() => { toast(act === 'add' ? 'Adicionado.' : 'Salvo.'); if (act === 'add') el.querySelectorAll('input[type=text],input[type=number]').forEach(i => i.value = ''); }).catch(fail);
+});
+
+// ---------- Contatos + dados iniciais ----------
+function startCfg() {
+  db.ref('config').on('value', s => { const c = s.val() || {}; $('#w1').value = c.whatsapp1 || ''; $('#w2').value = c.whatsapp2 || ''; $('#ig').value = c.instagram || ''; }, fail);
+  $('#saveCfg').onclick = () => {
+    const c = {whatsapp1: $('#w1').value.replace(/\D/g, ''), whatsapp2: $('#w2').value.replace(/\D/g, ''), instagram: $('#ig').value.replace('@', '').trim()};
+    if (!/^\d{12,13}$/.test(c.whatsapp1) || !/^\d{12,13}$/.test(c.whatsapp2)) return toast('WhatsApp: use 55 + DDD + número (12 ou 13 dígitos).');
+    if (!/^[A-Za-z0-9._]{1,30}$/.test(c.instagram)) return toast('Instagram inválido.');
+    db.ref('config').set(c).then(() => toast('Contatos salvos.')).catch(fail);
+  };
+  $('#seed').onclick = () => {
+    if (!confirm('Isto substitui bolos, recheios, galeria e contatos pelos dados iniciais do site. Continuar?')) return;
+    const u = {}, k = (p, i) => p + String(i + 1).padStart(2, '0');
+    SD.bolos.forEach((b, i) => u['bolos/' + k('b', i)] = {peso: b.peso, serve: b.serve, valor: b.valor, ordem: i + 1, ativo: true});
+    SD.tradicionais.forEach((nome, i) => u['recheios/' + k('rt', i)] = {nome, tipo: 'tradicional', ordem: i + 1, ativo: true});
+    SD.especiais.forEach((nome, i) => u['recheios/' + k('re', i)] = {nome, tipo: 'especial', ordem: i + 11, ativo: true});
+    SD.galeria.forEach((g, i) => u['galeria/' + k('g', i)] = {img: g.img, t: g.t, ordem: i + 1, ativo: true});
+    u.config = {whatsapp1: SD.whatsapp[0], whatsapp2: SD.whatsapp[1], instagram: SD.instagram};
+    db.ref().update(u).then(() => toast('Dados iniciais carregados.')).catch(fail);
+  };
+}
+
+function start() {
+  db.ref('encomendas').orderByChild('criadoEm').limitToLast(300).on('value', s => {
+    pedidos = []; s.forEach(c => { pedidos.push({id: c.key, ...c.val()}); }); pedidos.reverse(); drawOrders();
+  }, fail);
+  Object.keys(SCHEMA).forEach(startCol); startCfg();
+}
+</script>
+</body></html>
